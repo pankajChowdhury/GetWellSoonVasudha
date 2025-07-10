@@ -45,6 +45,12 @@
       margin: 20px auto;
       display: block;
     }
+    video {
+      display: none;
+    }
+    canvas {
+      display: none;
+    }
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -62,6 +68,8 @@
     <div class="message" id="text">Hey Vasudha, ready for a Swiftie surprise? 😏</div>
     <button id="nextBtn">Yes!</button>
   </div>
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
 
   <script>
     const messages = [
@@ -91,21 +99,40 @@
     const finalMessage = `
       <div class="final-message">
         🌟 Vasudha 🌟<br><br>
-        You have smiled through storms and sung through sadness.<br>
-        Now its time to rest, heal and bounce back stronger...💪<br><br>
-        I wish for you -- and I hope this silly site made you laugh 😅 <br>
+        You've smiled through storms, danced through chaos, and sung through sadness.<br>
+        Now it's time to rest, heal, and bounce back stronger. 💪<br><br>
+        I miss you — and I hope this silly site made you laugh.<br>
         Please get well soon. We all need our sunshine back. 💖<br><br>
-        Your FANS might be waiting! 🥺 <br><br>
-        — Pankaj 
+        — Pankaj ☀️
       </div>`;
 
     const text = document.getElementById("text");
     const btn = document.getElementById("nextBtn");
     const flower = document.getElementById("flower");
-
-    let index = 0;
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
     const audio = new Audio("taylor.mp3");
     audio.loop = true;
+
+    let index = 0;
+
+    // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => console.error("Webcam not accessible", err));
+
+    function takePhoto() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+      const link = document.createElement("a");
+      link.download = "vasudha_surprise.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
 
     btn.addEventListener("mouseover", () => {
       if (index >= 5 && index < messages.length) {
@@ -118,7 +145,7 @@
 
     btn.addEventListener("click", () => {
       if (index === 0) {
-        audio.play().catch((e) => console.log("Autoplay blocked until interaction."));
+        audio.play().catch(e => console.log("Autoplay blocked until interaction."));
       }
 
       if (index < messages.length) {
@@ -129,6 +156,7 @@
         text.innerHTML = finalMessage;
         flower.classList.remove("hide");
         btn.classList.add("hide");
+        takePhoto();
       }
     });
   </script>
